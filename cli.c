@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 char *socket_path = "./socket";
 //char *socket_path = "\0hidden";
@@ -10,9 +11,11 @@ char *socket_path = "./socket";
 int main(int argc, char *argv[]) {
   struct sockaddr_un addr;
   char buf[100];
+  char message[100];
   int fd,rc;
 
-  if (argc > 1) socket_path=argv[1];
+  if (argc > 1) strncpy(message,argv[1],100);
+  else strcpy(message,"n/a");
 
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
     perror("socket error");
@@ -33,15 +36,21 @@ int main(int argc, char *argv[]) {
     exit(-1);
   }
 
-  while( (rc=read(STDIN_FILENO, buf, sizeof(buf))) > 0) {
-    if (write(fd, buf, rc) != rc) {
-      if (rc > 0) fprintf(stderr,"partial write");
-      else {
-        perror("write error");
-        exit(-1);
-      }
+  while( write(fd, message, sizeof(message)) == sizeof(message) ) {
+    if( (rc=read(fd, buf, sizeof(buf))) > 0) {
+      printf("Message received: %s\n", buf);
     }
+    sleep(10);
   }
+  //while( (rc=read(STDIN_FILENO, buf, sizeof(buf))) > 0) {
+  //  if (write(fd, buf, rc) != rc) {
+  //    if (rc > 0) fprintf(stderr,"partial write");
+  //    else {
+  //      perror("write error");
+  //      exit(-1);
+  //    }
+  //  }
+  //}
 
   return 0;
 }
