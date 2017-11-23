@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     if( (rc=read(fd, buf, sizeof(buf))) > 0) {
       printf("Message received: %s\n", buf);
     }
-    sleep(10);
+//    sleep(1);
   }
   //while( (rc=read(STDIN_FILENO, buf, sizeof(buf))) > 0) {
   //  if (write(fd, buf, rc) != rc) {
