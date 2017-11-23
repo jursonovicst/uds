@@ -2,19 +2,26 @@
 <?php
 
 
+function sig_handler($signo) {
+}
+
+pcntl_signal ( SIGTERM, "sig_handler" );
+pcntl_signal ( SIGINT, "sig_handler" );
+
+
+define ('SOCKET_PATH', "/tmp/srv.socket");
 $socket_pool = array();
-$socket_path="/tmp/srv.socket";
 
 
-$server_socket = stream_socket_server("unix://$socket_path", $errno, $errstr);
+$server_socket = stream_socket_server("unix://" . SOCKET_PATH, $errno, $errstr);
 if ($server_socket === FALSE) {
-    echo "Unable to create socket at $socket_path: $errstr ($errno)\n";
+    echo "Unable to create socket at " . SOCKET_PATH . ": $errstr ($errno)\n";
     exit(1);
 }
 
-
 $socket_pool[] = $server_socket;
 while (TRUE) {
+    #wait for IO to happen
     $read_pool = $socket_pool;
     $_w = $_e = NULL;
     $mod_fd = stream_select($read_pool, $_w, $_e, 5);
@@ -32,6 +39,7 @@ while (TRUE) {
             } else {
                 echo "Error accepting connection\n";
             }
+
         # handle messages
         } else {
             $sock_data = fread($socket, 100);
@@ -62,8 +70,9 @@ while (TRUE) {
     }
 }
 
-echo "Exiting...";
+echo "Exiting...\n";
 foreach ($socket_pool as $socket)
     fclose($socket);
+unlink(SOCKET_PATH);
 
 ?>
