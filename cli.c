@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 
-char *socket_path = "./socket";
+char *socket_path = "/tmp/srv.socket";
 //char *socket_path = "\0hidden";
 
 int main(int argc, char *argv[]) {

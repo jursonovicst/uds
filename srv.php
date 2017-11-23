@@ -1,47 +1,69 @@
 #!/usr/bin/php
 <?php
 
-$master = array();
 
-$server = stream_socket_server("unix://./socket", $errno, $errstr);
-if (!$server) {
-    echo "$errstr ($errno)\n";
-} else {
-    $master[] = $server;
+$socket_pool = array();
+$socket_path="/tmp/srv.socket";
 
-    while (TRUE) {
 
-        $read = $master;
-        $mod_fd = stream_select($read, $_w = NULL, $_e = NULL, 5);
-        if ($mod_fd === FALSE)
-            break;
+$server_socket = stream_socket_server("unix://$socket_path", $errno, $errstr);
+if ($server_socket === FALSE) {
+    echo "Unable to create socket at $socket_path: $errstr ($errno)\n";
+    exit(1);
+}
 
-        foreach( $read as $socket ) {
-            if ($socket === $server) {
-                $conn = stream_socket_accept($server);
-                if( $conn ) {
-                    $master[] = $conn;
-                    echo "Connection accepted from '" . stream_socket_get_name($conn, TRUE) . "'\n";
-                } else {
-                    echo "Error accepting socket\n";
-                }
+
+$socket_pool[] = $server_socket;
+while (TRUE) {
+    $read_pool = $socket_pool;
+    $_w = $_e = NULL;
+    $mod_fd = stream_select($read_pool, $_w, $_e, 5);
+    if ($mod_fd === FALSE)
+        # error or interrupt
+        break;
+
+    foreach ($read_pool as $socket) {
+        # accept new connections
+        if ($socket === $server_socket) {
+            $conn_socket = stream_socket_accept($server_socket);
+            if( $conn_socket !== FALSE ) {
+                $socket_pool[] = $conn_socket;
+                echo "Connection accepted\n";
             } else {
-                $sock_data = fread($socket, 100);
-                if (strlen($sock_data) === 0) { // connection closed
-                    $key_to_del = array_search($socket, $master, TRUE);
-                    fclose($socket);
-                    unset($master[$key_to_del]);
-                    echo "Connection closed";
-                } else if ($sock_data === FALSE) {
-                    echo "Something bad happened\n";
-                    $key_to_del = array_search($socket, $master, TRUE);
-                    unset($master[$key_to_del]);
-                } else {
-                    fwrite($socket, "Hello " . $sock_data . "!", 100);
-                    echo "Message sent to " . $sock_data . "\n";
-                }
+                echo "Error accepting connection\n";
+            }
+        # handle messages
+        } else {
+            $sock_data = fread($socket, 100);
+
+            # connection close
+            if (strlen($sock_data) === 0) {
+                $key_to_del = array_search($socket, $socket_pool, TRUE);
+                fclose($socket);
+                unset($socket_pool[$key_to_del]);
+                echo "Connection closed\n";
+
+            # error
+            } else if ($sock_data === FALSE) {
+                echo "Something bad happened, close connection\n";
+                $key_to_del = array_search($socket, $socket_pool, TRUE);
+                unset($socket_pool[$key_to_del]);
+
+            # message received
+            } else {
+                $reply = "Hello $sock_data!";
+                $n = fwrite($socket, $reply, 100);
+                if ($n == min(strlen($reply), 100))
+                    echo "Message sent to $sock_data\n";
+                else
+                    echo "Error sending message to $sock_data\n";
             }
         }
     }
 }
+
+echo "Exiting...";
+foreach ($socket_pool as $socket)
+    fclose($socket);
+
 ?>
