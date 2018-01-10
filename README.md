@@ -12,14 +12,21 @@ Prototype for c and PHP interface over unix domain socket. Goal is to let a PHP 
 
 simulates `[PHP]---geoip()-->[GTS]` with dummy answers.
 
-## cli.c
 
-simulates `[host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]` with dummy queries.
+
 
 ## Protocol
 
 
 I am not sure yet, JSON?
+``` c
+dlz_lookup(const char *zone, const char *name, void *dbdata,
+	   dns_sdlzlookup_t *lookup, dns_clientinfomethods_t *methods,
+	   dns_clientinfo_t *clientinfo)
+    
+
+```
+
 
 ``` json
 {
