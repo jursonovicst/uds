@@ -22,14 +22,16 @@ simulates `[host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[
 I am not sure yet, JSON?
 
 ``` json
-{
- "query": {
+{ "lookup":
+ {
+  "query": {
   "name": "service.example.com",
   "type": "INET",
   "class": "???"
  },
  "clientinfo": {
-   "ip": "1.2.3.4"
+  "ip": "1.2.3.4"
+  }
  }
 }
 
