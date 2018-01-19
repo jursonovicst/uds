@@ -30,6 +30,7 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 
 ``` json
 {
+ "messagetype": "dnsquery",
  "query": {
  "name": "service.example.com",
  "type": "A",
@@ -44,13 +45,18 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 
 ``` json
 {
- "answers": [
-  {
-   "type": "A",
-   "class": "IN",
-   "ttl": 5,
-   "address": "22.33.44.55"
-  }
- ]
-}
-```
+	"messagetype": "dnsanswer",
+	"answers": [{
+		"name": "www.bme.hu",
+		"type": "A",
+		"class": "IN",
+		"ttl": 5,
+		"address": "10.1.1.1"
+	}, {
+		"name": "www.bme.hu",
+		"type": "A",
+		"class": "IN",
+		"ttl": 5,
+		"address": "10.1.1.2"
+	}]
+}```
