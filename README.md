@@ -28,22 +28,22 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 ```
 
 
-``` json
+```json
 {
- "messagetype": "dnsquery",
- "query": {
- "name": "service.example.com",
- "type": "A",
- "class": "IN"
-},
-"clientinfo": {
- "ip": "1.2.3.4"
- }
+	"messagetype": "dnsquery",
+	"query": {
+		"name": "service.example.com",
+		"type": "A",
+		"class": "IN"
+	},
+	"clientinfo": {
+		"ip": "1.2.3.4"
+	}
 }
 ```
 
 
-``` json
+```json
 {
 	"messagetype": "dnsanswer",
 	"answers": [{
