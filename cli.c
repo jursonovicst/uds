@@ -5,17 +5,21 @@
 #include <unistd.h>
 #include <string.h>
 
-char *socket_path = "/tmp/srv.socket";
+char *socket_path = "/tmp/bind-dlz-php-02.socket";
 //char *socket_path = "\0hidden";
 
 int main(int argc, char *argv[]) {
   struct sockaddr_un addr;
-  char buf[100];
-  char message[100];
+  char buff[2000];
+  char message[2000];
   int fd,rc;
 
-  if (argc > 1) strncpy(message,argv[1],100);
-  else strcpy(message,"n/a");
+  if (argc > 1)
+    strncpy(buff,argv[1],100);
+  else
+    strcpy(buff,"www.example.com");
+
+  sprintf(message, "{\"messagetype\":\"dnsquery\",\"query\":{\"name\": \"%s\", \"type\":\"A\", \"class\":\"IN\"}}", buff);
 
   if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
     perror("socket error");
@@ -35,22 +39,13 @@ int main(int argc, char *argv[]) {
     perror("connect error");
     exit(-1);
   }
-
-  while( write(fd, message, sizeof(message)) == sizeof(message) ) {
-    if( (rc=read(fd, buf, sizeof(buf))) > 0) {
-      printf("Message received: %s\n", buf);
+  printf("Sending message '%s'", message);
+  while( write(fd, message, strlen(message)) == strlen(message) ) {
+    if( (rc=read(fd, buff, sizeof(buff))) > 0) {
+      printf("Message received: %s\n", buff);
     }
 //    sleep(1);
   }
-  //while( (rc=read(STDIN_FILENO, buf, sizeof(buf))) > 0) {
-  //  if (write(fd, buf, rc) != rc) {
-  //    if (rc > 0) fprintf(stderr,"partial write");
-  //    else {
-  //      perror("write error");
-  //      exit(-1);
-  //    }
-  //  }
-  //}
 
   return 0;
 }
