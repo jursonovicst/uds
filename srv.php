@@ -3,6 +3,7 @@
 // -d xdebug.profiler_enable=1
 
 
+define ( "INIFILE", "cli.ini");
 
 
 /**
@@ -17,7 +18,6 @@ function myLog(string $message) {
 	else
 		error_log ( trim ( $message ) );
 }
-
 
 
 
@@ -75,7 +75,7 @@ function listen_and_answer(string $server_socket_name)
             $_w = $_e = NULL;
             if (($mod_fd = stream_select($read_pool, $_w, $_e, 0, 200000)) === FALSE)
                 #error or interrupt TODO: howto handle error messages and filter interrupts?
-                throw new Exception("Error or interrupt", 0);
+                throw new Exception("Interrupt", 0);
 
             # timeout
             if ($mod_fd == 0)
@@ -202,8 +202,7 @@ try {
         if ($pid == 0) {
             # I am child x, then exit, my parent process will respawn me!
 
-            sleep(1);
-            exit(0);
+            exit(254);
         } else {
             # I am the parent, register child for respawn
 
@@ -213,37 +212,41 @@ try {
 
 
     # I must be a parent, otherwise I have already exited with exit(0). I will monitor all children, and respawn them, if they exited due to some error.
-    while ($__running) {
+    while (!empty($children) && $__running) {
+        # wait a bit to avoid high polling frequency
+        sleep(1);
+
         foreach ($children as $socket_name => $pid) {
+            $status = NULL;
             $res = pcntl_waitpid($pid, $status, WNOHANG);
 
             if ($res > 0) {
-                # a child has already exited
+                # a child has exited
 
                 unset($children[$socket_name]);
 
-                # wait a bit to avoid fork bombing
-                sleep(1);
+                # check if the child exited due to an error --> respawn
+                if (pcntl_wexitstatus($status) > 0) {
 
-                if (($newpid = pcntl_fork()) == -1) {
-                    myLog("Cannot respawn child $pid, let's try it again.");
-                    continue;
+                    if (($newpid = pcntl_fork()) == -1) {
+                        myLog("Cannot respawn child $pid, let's try it again.");
+                        continue;
+                    }
+
+                    if ($newpid == 0) {
+                        # I am the child, let's do some work.
+
+                        listen_and_answer($socket_name);
+                        # This function above will never return, instead the child will exit, so watch for respawn.
+                    } else {
+                        # I am the parent, register child for respawn
+
+                        $children[$socket_name] = $newpid;
+                    }
                 }
-
-                if ($newpid == 0) {
-                    # I am the child, let's do some work.
-
-                    listen_and_answer($socket_name);
-                    # This function above will never return, instead the child will exit, so watch for respawn.
-                } else {
-                    # I am the parent, register child for respawn
-
-                    $children[$socket_name] = $newpid;
-                }
-
 
             } elseif ($res == -1) {
-                # error
+                # internal error
 
                 myLog("Error watching children: " . pcntl_strerror(pcntl_get_last_error()) . ", continue watching...");
             }
@@ -251,7 +254,6 @@ try {
     }
 
     myLog("I am terminating normally, systemd should not restart me!");
-
     # kill children
     foreach ($children as $pid)
         posix_kill($pid, SIGTERM);
