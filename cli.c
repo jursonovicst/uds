@@ -4,18 +4,35 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <time.h>
 
 char *socket_path = "/tmp/bind-dlz-php-02.socket";
 //char *socket_path = "\0hidden";
+
+int running=1;
+int start=0;
+int stop=0;
+
+void signal_handler (int sg)
+{
+  running=0;
+}
 
 int main(int argc, char *argv[]) {
   struct sockaddr_un addr;
   char buff[2000];
   char message[2000];
   int fd,rc;
+  int queries=0;
+  int max=1000;
+
+  signal(SIGINT, signal_handler);
 
   if (argc > 1)
     strncpy(buff,argv[1],100);
+  else if (argc > 2)
+    sscanf(argv[2],"%d",&max);
   else
     strcpy(buff,"www.example.com");
 
@@ -39,13 +56,20 @@ int main(int argc, char *argv[]) {
     perror("connect error");
     exit(-1);
   }
-  printf("Sending message '%s'", message);
-  while( write(fd, message, strlen(message)) == strlen(message) ) {
+  start=(unsigned long)time(NULL);
+  while( running == 1 && queries < max && write(fd, message, strlen(message)) == strlen(message) ) {
     if( (rc=read(fd, buff, sizeof(buff))) > 0) {
-      printf("Message received: %s\n", buff);
+      printf(".");
+      queries++;
+    } else {
+      printf("e");
     }
+    fflush(stdout);
+
 //    sleep(1);
   }
+  stop=(unsigned long)time(NULL);
+  printf("\nQueries processed: %d in %d sec, %.2f r/s\n", queries, stop-start, (float)queries/(stop-start));
 
   return 0;
 }

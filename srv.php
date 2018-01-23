@@ -58,6 +58,7 @@ function sig_handler($signo)
 function listen_and_answer(string $server_socket_name)
 {
     global $__running;
+    $responses = 0;
 
     $socket_pool = [];
     try {
@@ -132,13 +133,17 @@ function listen_and_answer(string $server_socket_name)
                     $query = new dnsquery();
                     try {
                         $query->from_wire($sock_data);
-                        myLog(";; QUESTION SECTION:\n" . $query->getString());
+                        #myLog(";; QUESTION SECTION:\n" . $query->getString());
 
                         $answer = new dnsanswer();
                         $answer->add_answer($query->getName(), $query->getType(), $query->getClass(), 5, rand(1, 255) . "." . rand(1, 255) . "." . rand(1, 255) . "." . rand(1, 255));
                         $answer->add_answer($query->getName(), $query->getType(), $query->getClass(), 5, rand(1, 255) . "." . rand(1, 255) . "." . rand(1, 255) . "." . rand(1, 255));
 
-                        myLog(";; ANSWER SECTION:\n" . $answer->getString());
+			# simulate api access
+			usleep(10*1000);
+			$responses += 1;
+
+                        #myLog(";; ANSWER SECTION:\n" . $answer->getString());
 
                         if (($n = fwrite($socket, $data = $answer->to_wire())) === FALSE || $n != strlen($data)) {
                             # write error, connection close
@@ -165,6 +170,8 @@ function listen_and_answer(string $server_socket_name)
         foreach ($socket_pool as $socket)
             fclose($socket);
         unlink($server_socket_name);
+
+	echo ("Query processed: $responses\n");
 
         myLog("Worker '$server_socket_name' exiting: " . $e->getMessage());
         exit($e->getCode());
