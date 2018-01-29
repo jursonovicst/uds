@@ -1,5 +1,6 @@
 <?php
 header ( "Content-Type: application/json ");
+error_log("Access",3,"/tmp/dnsresponder.log");
 $query = new dnsquery();
 try {
     $query->from_wire(file_get_contents("php://input"));
@@ -13,7 +14,7 @@ try {
     
     echo $answer->to_wire();
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+    error_log("Error: " . $e->getMessage(),3,"/tmp/dnsresponder.log");
 }
 
 
