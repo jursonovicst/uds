@@ -9,4 +9,4 @@ if [ -S "${UDSOCKET}" ]; then
   rm "${UDSOCKET}"
 fi
 
-spawn-fcgi -s "${UDSOCKET}" -- /usr/bin/multiwatch -f $PROCCOUNT -- "${PYSCRIPT}"
+spawn-fcgi -s "${UDSOCKET}" -- /usr/bin/multiwatch -f $PROCCOUNT -- /usr/bin/python "${PYSCRIPT}"
