@@ -2,29 +2,29 @@
 
 from flup.server.fcgi import WSGIServer
 import sys
+import re
 import json
+import ipaddress
 from random import randint
 from time import sleep
-
-def myapp(environ, start_response):
-    start_response('200 OK', [('Content-Type', 'text/plain')])
-    return ['Hello World!\n']
+from flup.server.fcgi import WSGIServer
 
 
 class dnsmessage(object):
-    _data = {}
+    _data = {}      #this can hold anything...
 
     def __init__(self):
         self._data['messagetype'] = self.__class__.__name__
 
     def to_wire(self):
-        return json.JSONEncoder.encode(self._data)
+        return json.JSONEncoder().encode(self._data)
 
     def from_wire(self, serialdata):
         self._data = json.JSONDecoder().decode(serialdata)
 
         if not 'messagetype' in self._data or self._data['messagetype'] != self.__class__.__name__:
             raise Exception("Unexpected message type '%s' for %s" % (self._data['messagetype'], self.__class__.__name__))
+
 
 class dnsquery(dnsmessage):
 
@@ -37,28 +37,26 @@ class dnsquery(dnsmessage):
 
         if not 'name' in self._data['query']:
             raise Exception("name value is missing from %s" % self.__class__.__name__)
-#        if (!filter_var($this->data['query']['name'], FILTER_VALIDATE_REGEXP, array(
-#            "options" => array(
-#                "regexp" => "/^(?:[a-zA-Z][a-zA-Z0-9-]*\.)+[a-zA-Z][a-zA-Z0-9-]*$/"
-#            )
-#        )))
-#            raise ValueError ("Domain name '" . $this->data['query']['name'] . "' is invalid!");
+        if not re.match("^(?:[a-zA-Z][a-zA-Z0-9-]*\.)+[a-zA-Z][a-zA-Z0-9-]*$", self._data['query']['name']):
+            raise ValueError("Domain name '%s' is invalid!" % self._data['query']['name'])
 
         if not 'type' in self._data['query']:
             raise Exception("type value is missing from %s" % self.__class__.__name__)
-#        if ($this->data['query']['type'] != "A" && $this->data['query']['type'] != "AAAA")
-#            raise ValueError("type '" . $this->data['query']['type'] . "' is not supported.");
+        if self._data['query']['type'] != "A" and self._data['query']['type'] != "AAAA":
+            raise ValueError("type '%s' is not supported." % self._data['query']['type'])
 
         if not 'class' in self._data['query']:
             raise Exception("class value is missing from %s" % self.__class__.__name__)
-#        if ($this->data['query']['class'] != "IN")
-#            raise ValueError("class '" . $this->data['query']['class'] . "'is not supported.");
+        if self._data['query']['class'] != "IN":
+            raise ValueError("class '%s'is not supported." % self._data['query']['class'])
 
         # optional attributes
-        #if not 'clientinfo' in self._data: # and  isset($this->data['clientinfo']['ip']) && !filter_var($this->data['clientinfo']['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
-            #myLog("IP '" . $this->data['clientinfo']['ip'] . "' is not a valid IP (v4 or v6) address, continue without IP.");
-            #unset($this->data['clientinfo']['ip']);
-            #unset($this->data['clientinfo']);
+        if 'clientinfo' in self._data and 'ip' in self._data['clientinfo']:
+            try:
+                ipaddress.ip_address(self._data['clientinfo']['ip'])
+            except ValueError:
+                print("IP '%s' is not a valid IP (v4 or v6) address, continue without IP." % self._data['clientinfo']['ip'])
+                del self._data['clientinfo']['ip']
 
     def getString(self):
         return self._data['query']['name'] + " " + self._data['query']['class'] + " " + self._data['query']['type']
@@ -97,20 +95,25 @@ class dnsanswer(dnsmessage):
         return buff.rstrip()
 
 
+def app():
+    try:
+        query = dnsquery()
+        query.from_wire(sys.stdin.read())
+        #query.from_wire("{\"messagetype\": \"dnsquery\",\"query\": {\"name\": \"service.example.com\",\"type\": \"A\",\"class\": \"IN\"},\"clientinfo\": {\"ip\": \"1.2.3.4\"}}")
+        answer = dnsanswer()
+
+        answer.add_answer(query.getName(), query.getType(), query.getClass(), 5, "%d.%d.%d.%d" % (randint(1, 255), randint(1, 255), randint(1, 255), randint(1, 255)))
+        answer.add_answer(query.getName(), query.getType(), query.getClass(), 5, "%d.%d.%d.%d" % (randint(1, 255), randint(1, 255), randint(1, 255), randint(1, 255)))
+
+        # simulate api access
+        sleep(0.01)
+
+        print(answer.to_wire())
+    except Exception as e:
+        print("Error: %s" % e.message)
+
+
 if __name__ == '__main__':
 
-    query = dnsquery()
-#    query.from_wire(sys.stdin.read())
-    query.from_wire("{\"messagetype\": \"dnsquery\",\"query\": {\"name\": \"service.example.com\",\"type\": \"A\",\"class\": \"IN\"},\"clientinfo\": {\"ip\": \"1.2.3.4\"}}")
-    answer = dnsanswer()
-
-    answer.add_answer(query.getName(), query.getType(), query.getClass(), 5, "%d.%d.%d.%d" % (randint(1, 255),randint(1, 255),randint(1, 255),randint(1, 255)))
-    answer.add_answer(query.getName(), query.getType(), query.getClass(), 5, "%d.%d.%d.%d" % (randint(1, 255),randint(1, 255),randint(1, 255),randint(1, 255)))
-
-    # simulate api access
-    sleep(0.01)
-
-    print(answer.to_wire())
-
-    #from flup.server.fcgi import WSGIServer
-    #WSGIServer(myapp,bindAddress="/var/run/flup/flup.sock").run()
+    #app()
+    WSGIServer(app,bindAddress="/var/run/flup/flup.sock").run()
