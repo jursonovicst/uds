@@ -1,8 +1,8 @@
 <?php
-header ( "Content-Type: application/json ");
 error_log("Access",3,"/tmp/dnsresponder.log");
-$query = new dnsquery();
+
 try {
+    $query = new dnsquery();
     $query->from_wire(file_get_contents("php://input"));
     #echo $query->getString();
     $answer = new dnsanswer();
@@ -12,10 +12,17 @@ try {
     # simulate api access
     usleep(10*1000);
     
-    echo $answer->to_wire();
+    $response_body = $answer->to_wire();
 } catch (Exception $e) {
-    error_log("Error: " . $e->getMessage(),3,"/tmp/dnsresponder.log");
+    http_response_code(500);
+    header ( "Content-Type: text/plain");
+    echo ("Error: " . $e->getMessage());
 }
+
+header ( "Status: 200 OK");
+header ( "Content-Type: application/json ");
+header ( "Content-Length: " . strlen($response_body));
+echo $response_body;
 
 
 /**
