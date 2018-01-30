@@ -109,7 +109,7 @@ def app(environ, start_response):
         sleep(0.01)
 
         start_response('200 OK', [('Content-Type', 'application/json')])
-        yield answer.to_wire()
+        print (answer.to_wire())
 
     except Exception as e:
         print("Error: %s" % e.message)
