@@ -96,10 +96,15 @@ class dnsanswer(dnsmessage):
 
 
 def app(environ, start_response):
+    response_body = ""
     try:
+        try:
+            request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+        except (ValueError):
+            request_body_size = 0
+        
         query = dnsquery()
-        query.from_wire(sys.stdin.read())
-        #query.from_wire("{\"messagetype\": \"dnsquery\",\"query\": {\"name\": \"service.example.com\",\"type\": \"A\",\"class\": \"IN\"},\"clientinfo\": {\"ip\": \"1.2.3.4\"}}")
+        query.from_wire(environ['wsgi.input'].read(request_body_size))
         answer = dnsanswer()
 
         answer.add_answer(query.getName(), query.getType(), query.getClass(), 5, "%d.%d.%d.%d" % (randint(1, 255), randint(1, 255), randint(1, 255), randint(1, 255)))
@@ -108,14 +113,18 @@ def app(environ, start_response):
         # simulate api access
         sleep(0.01)
 
-        start_response('200 OK', [('Content-Type', 'application/json')])
-        print (answer.to_wire())
+        response_body = answer.to_wire()
 
     except Exception as e:
-        print("Error: %s" % e.message)
+        start_response('500 ERROR', [('Content-Type', 'text/plain')])
+        return [e.message]
+
+    start_response('200 OK', [('Content-Type', 'application/json')])
+    return [response_body]
 
 
 if __name__ == '__main__':
 
     #app()
+    print("STarting server...")
     WSGIServer(app,bindAddress="/var/run/flup/flup.sock").run()
