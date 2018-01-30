@@ -99,7 +99,6 @@ class dnsquery extends dnsmessage
         if (isset($this->data['clientinfo']) && isset($this->data['clientinfo']['ip']) && !filter_var($this->data['clientinfo']['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
             myLog("IP '" . $this->data['clientinfo']['ip'] . "' is not a valid IP (v4 or v6) address, continue without IP.");
             unset($this->data['clientinfo']['ip']);
-            unset($this->data['clientinfo']);
         }
     }
 
