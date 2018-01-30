@@ -95,7 +95,7 @@ class dnsanswer(dnsmessage):
         return buff.rstrip()
 
 
-def app():
+def app(environ, start_response):
     try:
         query = dnsquery()
         query.from_wire(sys.stdin.read())
@@ -108,7 +108,9 @@ def app():
         # simulate api access
         sleep(0.01)
 
-        print(answer.to_wire())
+        start_response('200 OK', [('Content-Type', 'application/json')])
+        yield answer.to_wire()
+
     except Exception as e:
         print("Error: %s" % e.message)
 
