@@ -67,20 +67,21 @@ lookup without clientipinfo
 
 ```json
 {
-	"messagetype": "dnsanswer",
-	"answers": [{
-		"name": "www.bme.hu",
-		"type": "A",
-		"class": "IN",
-		"ttl": 5,
-		"address": "10.1.1.1"
-	}, {
-		"name": "www.bme.hu",
-		"type": "A",
-		"class": "IN",
-		"ttl": 5,
-		"address": "10.1.1.2"
-	}]
-}```
+	"messagetype": "resourcerecords",
+	"rrs": [{
+			"name": "1.2.3.4|2001:0db8:85a3:0000:0000:8a2e:0370:7334|this.is.the.right.fqdn.example.com|etc...",
+			"type": "A|AAAA|CNAME|etc...",
+			"class": "IN",
+			"ttl": 300
+		},
+		{
+			"name": "1.2.3.4|2001:0db8:85a3:0000:0000:8a2e:0370:7334|this.is.the.right.fqdn.example.com|etc...",
+			"type": "A|AAAA|CNAME|etc...",
+			"class": "IN",
+			"ttl": 300
+		}
+	]
+}
+```
 
 
