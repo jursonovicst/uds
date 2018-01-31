@@ -32,20 +32,37 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 
 ```
 
-
+lookup with clientipinfo
 ```json
 {
-	"messagetype": "dnsquery",
-	"query": {
-		"name": "service.example.com",
-		"type": "A",
+	"messagetype": "sdlzlookup",
+	"lookup": {
+		"zone": "example.com",
+		"name": "service",
+		"type": "A|AAAA|ANY|etc...",
 		"class": "IN"
 	},
 	"clientinfo": {
-		"ip": "1.2.3.4"
+		"type": "ipv4|ipv6",
+		"sourceip": "1.2.3.4"
 	}
 }
 ```
+
+lookup without clientipinfo
+```json
+{
+	"messagetype": "sdlzlookup",
+	"lookup": {
+		"zone": "example.com",
+		"name": "service",
+		"type": "A|AAAA|ANY|etc...",
+		"class": "IN"
+	},
+	"clientinfo": null
+}
+```
+
 
 
 ```json
