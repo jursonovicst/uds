@@ -2,20 +2,24 @@
 
 Prototype for c and PHP interface over unix domain socket. Goal is to let a PHP script answer DNS queries ad hoc, therefore a interface is needed between 
 
-direkt PHP server:
+
+client side:
 ```
 [host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]
-
-[dlz]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]
-                   |
-		   +->[python script with]
-
----lookup()-->[PHP]---geoip()-->[GTS]
 ```
 
-over nginx:
+server side with fastcgi/uds:
 ```
-[host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]---lookup()-->[nginx]--fastcgi-->[PHP]---geoip()-->[GTS]
+[DLZ]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]--+
+                   |                                           |
+		   +->[python script with flup.server.fcgi]----+rest-->[GTS]
+```
+
+server side with http:
+```
+[DLZ]---HTTP-->[nginx]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]--+
+                                    |                                           |
+		                    +->[python script with flup.server.fcgi]----+rest-->[GTS]
 ```
 
 
