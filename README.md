@@ -4,7 +4,9 @@ Prototype for c and PHP interface over unix domain socket. Goal is to let a PHP 
 
 direkt PHP server:
 ```
-[host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]
+[host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]
+
+[dlz]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]
 
 ---lookup()-->[PHP]---geoip()-->[GTS]
 ```
