@@ -7,6 +7,8 @@ direkt PHP server:
 [host]---DNS lookup-->[resolver]---DNS QUERY-->[bind9]---lookup()-->[DLZ]
 
 [dlz]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]
+                   |
+		   +->[python script with]
 
 ---lookup()-->[PHP]---geoip()-->[GTS]
 ```
