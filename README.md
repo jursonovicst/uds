@@ -32,8 +32,19 @@ dlz source: https://sourceforge.net/projects/bind-dlz/files/Bind%20DLZ/DLZ-0.7.0
 
 ## Protocol
 
+The scripts (both PHP and Python) returns an HTTP response structure with a json included:
 
-I am not sure yet, JSON?
+```
+Status: <HTTP response code> <HTTP response string>
+Content-Type: application/json
+Content-Length: <length of the json>
+
+<json>
+```
+
+
+##json specification
+
 ``` c
 dlz_lookup(const char *zone, const char *name, void *dbdata,
 	   dns_sdlzlookup_t *lookup, dns_clientinfomethods_t *methods,
