@@ -10,9 +10,9 @@ client side:
 
 server side with fastcgi/uds:
 ```
-[DLZ]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]--+
-                   |                                           |
-		   +->[python script with flup.server.fcgi]----+rest-->[GTS]
+[DLZ]---fastcgi/uds-->[php-fpm]---php-internal-->[php script]-+
+                    |                                         |
+		    +>[python script with flup.server.fcgi]---+-rest-->[GTS]
 ```
 
 server side with http:
