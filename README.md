@@ -43,7 +43,7 @@ Content-Length: <length of the json>
 ```
 
 
-##json specification
+## json specification
 
 ``` c
 dlz_lookup(const char *zone, const char *name, void *dbdata,
