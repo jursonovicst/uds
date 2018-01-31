@@ -70,7 +70,7 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 
 
 
-```
+``` c
 typedef isc_result_t
 (*dns_sdlzlookupfunc_t)(	const char *zone,					--example.com
 const char *name,					--service
