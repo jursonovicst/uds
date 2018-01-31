@@ -53,7 +53,7 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 
 ```
 
-lookup with clientipinfo
+### lookup with clientipinfo
 ```json
 {
 	"messagetype": "sdlzlookup",
@@ -70,7 +70,7 @@ lookup with clientipinfo
 }
 ```
 
-lookup without clientipinfo
+### lookup without clientipinfo
 ```json
 {
 	"messagetype": "sdlzlookup",
@@ -84,7 +84,7 @@ lookup without clientipinfo
 }
 ```
 
-
+### resource record format
 
 ```json
 {
