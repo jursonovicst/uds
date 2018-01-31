@@ -1,6 +1,6 @@
 # uds
 
-Prototype for c and PHP interface over unix domain socket. Goal is to let a PHP script answer DNS queries ad hoc, therefore a interface is needed between 
+Prototype for c and PHP/Python interface. Goal is to let a script answer DNS queries ad hoc. 
 
 
 client side:
