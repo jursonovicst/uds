@@ -96,7 +96,7 @@ dlz_lookup(const char *zone, const char *name, void *dbdata,
 			"ttl": 300
 		},
 		{
-			"name": "this.is.the.right.fqdn.example.com|etc...",
+			"name": "this.is.the.right.fqdn.example.com",
 			"type": "CNAME",
 			"ttl": 300
 		}
