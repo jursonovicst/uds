@@ -46,12 +46,23 @@ Content-Length: <length of the json>
 ## json specification
 
 ``` c
-dlz_lookup(const char *zone, const char *name, void *dbdata,
-	   dns_sdlzlookup_t *lookup, dns_clientinfomethods_t *methods,
+dlz_lookup(const char *zone,			//zone name
+           const char *name,			//host name
+	   void *dbdata,			//custom dlz structur for pass over between functions
+	   dns_sdlzlookup_t *lookup,		//here you put your rrs back
+	   dns_clientinfomethods_t *methods,
 	   dns_clientinfo_t *clientinfo)
     
 
+typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
+				      const char *type,			//type (A, AAAA, etc...)
+				      dns_ttl_t ttl,
+				      const char *data			//address
+				      );
 ```
+
+
+
 
 ### lookup with clientipinfo
 ```json
