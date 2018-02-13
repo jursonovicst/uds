@@ -69,8 +69,8 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 {
 	"messagetype": "lookup",
 	"lookup": {
-		"zone": "example.com",
-		"name": "service"
+		"name": "service",
+		"zone": "example.com"
 	},
 	"clientinfo": {
 		"type": "ipv4|ipv6",
@@ -84,8 +84,8 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 {
 	"messagetype": "lookup",
 	"lookup": {
-		"zone": "example.com",
-		"name": "service"
+		"name": "service",
+		"zone": "example.com"
 	},
 	"clientinfo": null
 }
@@ -97,19 +97,19 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 {
 	"messagetype": "resourcerecords",
 	"rrs": [{
-			"name": "1.2.3.4",
 			"type": "A",
-			"ttl": 300
+			"ttl": 300,
+			"data": "1.2.3.4"
 		},
 		{
-			"name": "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
 			"type": "AAAA",
-			"ttl": 300
+			"ttl": 300,
+			"data": "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
 		},
 		{
-			"name": "this.is.the.right.fqdn",
 			"type": "CNAME",
-			"ttl": 300
+			"ttl": 300,
+			"data": "this.is.the.right.fqdn"
 		}
 	]
 }
