@@ -143,4 +143,16 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 }
 ```
 
+### resource record format (without rrs)
+
+```json
+{
+	"messagetype": "resourcerecords",
+	"rrs": [],
+	"log":	{
+			"message": "error string, please log me",
+			"severity": "error"
+		}
+}
+```
 
