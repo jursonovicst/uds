@@ -91,7 +91,7 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 }
 ```
 
-### resource record format
+### resource record format (with log)
 
 ```json
 {
@@ -116,6 +116,30 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 			"message": "please log me",
 			"severity": "debug"
 		}
+}
+```
+
+### resource record format (without log)
+
+```json
+{
+	"messagetype": "resourcerecords",
+	"rrs": [{
+			"type": "A",
+			"ttl": 300,
+			"data": "1.2.3.4"
+		},
+		{
+			"type": "AAAA",
+			"ttl": 300,
+			"data": "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+		},
+		{
+			"type": "CNAME",
+			"ttl": 300,
+			"data": "this.is.the.right.fqdn"
+		}
+	],
 }
 ```
 
