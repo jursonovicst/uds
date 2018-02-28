@@ -112,7 +112,7 @@ typedef isc_result_t dns_sdlz_putrr_t(dns_sdlzlookup_t *lookup,		//here to put
 			"data": "this.is.the.right.fqdn"
 		}
 	],
-	"log": {
+	"log":	{
 			"message": "please log me",
 			"severity": "debug"
 		}
