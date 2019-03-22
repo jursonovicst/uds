@@ -1,0 +1,10 @@
+# Start fcgi process manager with
+./srv.sh
+spawn-fcgi: child spawned successfully: PID: 14297
+
+# run client
+./cli.sh
+
+#Stop fcgi process manager with (pid from above output):
+$PID=14297
+kill $PID
